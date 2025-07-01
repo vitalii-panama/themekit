@@ -1,0 +1,30 @@
+{
+  "name": "shopify-theme-premium",
+  "version": "1.0.0",
+  "description": "Premium Shopify Theme 2.0 with Tailwind CSS and Vite",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite build --watch --mode development",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "npm run build && shopify theme check",
+    "deploy:dev": "shopify theme push --development",
+    "deploy:live": "shopify theme push --live"
+  },
+  "keywords": ["shopify", "theme", "tailwind", "vite", "premium"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.10",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.3.6",
+    "vite": "^5.0.8"
+  },
+  "dependencies": {
+    "@shopify/theme-sections": "^1.0.0",
+    "swiper": "^11.0.5",
+    "alpinejs": "^3.13.3"
+  }
+}

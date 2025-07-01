@@ -1,0 +1,99 @@
+<script>
+// Cart functionality
+class ShopifyCart {
+  constructor() {
+    this.init();
+  }
+
+  async init() {
+    await this.updateCartDisplay();
+  }
+
+  async addItem(variantId, quantity = 1) {
+    try {
+      const response = await fetch('/cart/add.js', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: variantId,
+          quantity: quantity
+        })
+      });
+
+      if (response.ok) {
+        await this.updateCartDisplay();
+        // Show cart drawer
+        if (window.Alpine) {
+          Alpine.store('cart').toggle();
+        }
+        this.showNotification('Item added to cart!', 'success');
+      } else {
+        throw new Error('Failed to add item to cart');
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      this.showNotification('Failed to add item to cart', 'error');
+    }
+  }
+
+  async updateCartDisplay() {
+    try {
+      const response = await fetch('/cart.js');
+      const cart = await response.json();
+      
+      // Update cart count in header
+      const cartCountElements = document.querySelectorAll('[data-cart-count]');
+      cartCountElements.forEach(element => {
+        element.textContent = cart.item_count;
+        element.style.display = cart.item_count > 0 ? 'flex' : 'none';
+      });
+
+      // Update cart drawer content if open
+      if (window.Alpine && Alpine.store('cart')) {
+        Alpine.store('cart').updateFromCartData(cart);
+      }
+    } catch (error) {
+      console.error('Error updating cart display:', error);
+    }
+  }
+
+  showNotification(message, type = 'info') {
+    // Create a simple notification
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${
+      type === 'success' ? 'bg-green-500 text-white' : 
+      type === 'error' ? 'bg-red-500 text-white' : 
+      'bg-blue-500 text-white'
+    }`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+      notification.remove();
+    }, 3000);
+  }
+}
+
+// Initialize cart
+document.addEventListener('DOMContentLoaded', function() {
+  window.shopifyCart = new ShopifyCart();
+});
+
+// Add to cart button handler
+document.addEventListener('click', function(e) {
+  if (e.target.matches('[data-add-to-cart]') || e.target.closest('[data-add-to-cart]')) {
+    e.preventDefault();
+    const button = e.target.matches('[data-add-to-cart]') ? e.target : e.target.closest('[data-add-to-cart]');
+    const variantId = button.dataset.variantId || button.dataset.addToCart;
+    const quantity = parseInt(button.dataset.quantity) || 1;
+    
+    if (variantId && window.shopifyCart) {
+      window.shopifyCart.addItem(variantId, quantity);
+    }
+  }
+});
+</script>
